@@ -1,8 +1,7 @@
 /*
-	heap
-	This question requires you to implement a binary heap function
+    heap
+    This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -18,7 +17,7 @@ where
 
 impl<T> Heap<T>
 where
-    T: Default,
+    T: Default + PartialOrd,
 {
     pub fn new(comparator: fn(&T, &T) -> bool) -> Self {
         Self {
@@ -38,6 +37,24 @@ where
 
     pub fn add(&mut self, value: T) {
         //TODO
+        self.count += 1;
+        self.items.push(value);
+
+        let mut child = self.count;
+        let mut parent = self.parent_idx(child);
+
+        while child > 1 {
+            if (self.comparator)(
+                &self.items.as_slice()[child],
+                &self.items.as_slice()[parent],
+            ) {
+                self.items.swap(child, parent);
+                child = parent;
+                parent = self.parent_idx(child);
+            } else {
+                break;
+            }
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -49,7 +66,7 @@ where
     }
 
     fn left_child_idx(&self, idx: usize) -> usize {
-        idx * 2
+        idx * 2 + 1
     }
 
     fn right_child_idx(&self, idx: usize) -> usize {
@@ -58,7 +75,17 @@ where
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
         //TODO
-		0
+        let left = self.left_child_idx(idx);
+        let right = self.right_child_idx(idx);
+        if right == self.count {
+            return left;
+        }
+
+        if (self.comparator)(&self.items.as_slice()[left], &self.items.as_slice()[right]) {
+            left
+        } else {
+            right
+        }
     }
 }
 
@@ -85,7 +112,16 @@ where
 
     fn next(&mut self) -> Option<T> {
         //TODO
-		None
+        let count = self.count;
+        if count > 0 {
+            self.count -= 1;
+        }
+
+        if count > 0 {
+            Some(self.items.remove(1))
+        } else {
+            None
+        }
     }
 }
 
